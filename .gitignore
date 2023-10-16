@@ -160,4 +160,7 @@ buildNumber.properties
 # JDT-specific (Eclipse Java Development Tools)
 .classpath
 
+# Project
+**/application-aws.properties
+
 # End of https://www.toptal.com/developers/gitignore/api/java,intellij,maven
