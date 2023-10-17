@@ -1,9 +1,12 @@
 package com.numble.tracking.controller;
 
+import com.numble.tracking.service.UrlCounterService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,7 +17,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/url")
+@RequiredArgsConstructor
 public class UrlCounterController {
+
+    private final UrlCounterService urlCounterService;
 
     @ApiOperation(value = "URI 증가 API 메서드", notes = "호출 시 URL Count 증가")
     @ApiResponses({
@@ -23,7 +29,10 @@ public class UrlCounterController {
         @ApiResponse(code = 404, message = "Not Found !!")
     })
     @PostMapping("/counter")
-    public ResponseEntity<?> increaseCount(@ApiParam(value = "URL", required = true) @RequestParam String url){
+    public ResponseEntity<?> increaseCounter(@ApiParam(value = "URL", required = true) @RequestParam String url){
+
+        urlCounterService.increaseCounter(url);
+
         return ResponseEntity.status(HttpStatus.OK).build();
     }
 
