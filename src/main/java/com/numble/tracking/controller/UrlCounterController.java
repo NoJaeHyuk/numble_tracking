@@ -1,5 +1,6 @@
 package com.numble.tracking.controller;
 
+import com.numble.tracking.common.exception.CustomException;
 import com.numble.tracking.dto.CountStatsResponse;
 import com.numble.tracking.dto.UrlCounterResponse;
 import com.numble.tracking.service.UrlCounterService;
@@ -31,8 +32,8 @@ public class UrlCounterController {
         @ApiResponse(code = 404, message = "Not Found !!")
     })
     @PostMapping("/counter")
-    public ResponseEntity<UrlCounterResponse> increaseCounter(
-        @ApiParam(value = "URL", required = true) @RequestParam String url) {
+    public ResponseEntity<UrlCounterResponse> increaseCounter (
+        @ApiParam(value = "URL", required = true) @RequestParam String url){
 
         return ResponseEntity.status(HttpStatus.OK).body(urlCounterService.increaseCounter(url));
     }
