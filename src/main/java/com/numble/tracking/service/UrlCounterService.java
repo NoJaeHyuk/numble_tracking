@@ -1,5 +1,6 @@
 package com.numble.tracking.service;
 
+import com.numble.tracking.common.exception.CustomException;
 import com.numble.tracking.dto.CountStatsResponse;
 import com.numble.tracking.dto.UrlCounterResponse;
 import java.util.List;

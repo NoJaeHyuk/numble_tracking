@@ -1,5 +1,7 @@
 package com.numble.tracking.service.serviceImpl;
 
+import com.numble.tracking.common.Constants.ExceptionClass;
+import com.numble.tracking.common.exception.CustomException;
 import com.numble.tracking.domain.UrlCounter;
 import com.numble.tracking.dto.CountStatsResponse;
 import com.numble.tracking.dto.UrlCounterResponse;
@@ -8,11 +10,14 @@ import com.numble.tracking.service.UrlCounterService;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
-import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -26,7 +31,7 @@ public class UrlCounterServiceImpl implements UrlCounterService {
     private final UrlCounterRepository urlCounterRepository;
 
     @Override
-    @Transactional
+    @Transactional(isolation = Isolation.SERIALIZABLE)
     public UrlCounterResponse increaseCounter(String url) {
         UrlCounter counter = urlCounterRepository.findByUrlAndDate(url, TODAY)
             .orElse(new UrlCounter(url, TODAY));
