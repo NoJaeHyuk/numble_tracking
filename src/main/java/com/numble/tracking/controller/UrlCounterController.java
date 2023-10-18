@@ -1,12 +1,14 @@
 package com.numble.tracking.controller;
 
+import com.numble.tracking.dto.CountStatsResponse;
+import com.numble.tracking.dto.UrlCounterResponse;
 import com.numble.tracking.service.UrlCounterService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,11 +31,10 @@ public class UrlCounterController {
         @ApiResponse(code = 404, message = "Not Found !!")
     })
     @PostMapping("/counter")
-    public ResponseEntity<?> increaseCounter(@ApiParam(value = "URL", required = true) @RequestParam String url){
+    public ResponseEntity<UrlCounterResponse> increaseCounter(
+        @ApiParam(value = "URL", required = true) @RequestParam String url) {
 
-        urlCounterService.increaseCounter(url);
-
-        return ResponseEntity.status(HttpStatus.OK).build();
+        return ResponseEntity.status(HttpStatus.OK).body(urlCounterService.increaseCounter(url));
     }
 
     @ApiOperation(value = "URI 조회수 조회", notes = "호출 시 오늘 조회수와 누적 조회수를 재공한다.")
@@ -43,8 +44,9 @@ public class UrlCounterController {
         @ApiResponse(code = 404, message = "Not Found !!")
     })
     @GetMapping("/stats")
-    public ResponseEntity<?> getStats(@ApiParam(value = "URL", required = true) @RequestParam String url){
-        return ResponseEntity.status(HttpStatus.OK).build();
+    public ResponseEntity<CountStatsResponse> getStats(
+        @ApiParam(value = "URL", required = true) @RequestParam String url) {
+        return ResponseEntity.status(HttpStatus.OK).body(urlCounterService.getStats(url));
     }
 
     @ApiOperation(value = "7일간의 일간 조회수 조회", notes = "호출 시 7일간의 조회수를 제공한다.")
@@ -54,8 +56,9 @@ public class UrlCounterController {
         @ApiResponse(code = 404, message = "Not Found !!")
     })
     @GetMapping("/stats/weekly")
-    public ResponseEntity<?> getWeeklyStats(@ApiParam(value = "URL", required = true) @RequestParam String url){
-        return ResponseEntity.status(HttpStatus.OK).build();
+    public ResponseEntity<List<UrlCounterResponse>> getWeeklyStats(
+        @ApiParam(value = "URL", required = true) @RequestParam String url) {
+        return ResponseEntity.status(HttpStatus.OK).body(urlCounterService.getWeeklyStats(url));
     }
 
 }
