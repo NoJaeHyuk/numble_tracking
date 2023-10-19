@@ -1,26 +1,24 @@
 package com.numble.tracking.service.serviceImpl;
 
-import com.numble.tracking.common.Constants.ExceptionClass;
-import com.numble.tracking.common.exception.CustomException;
 import com.numble.tracking.domain.UrlCounter;
 import com.numble.tracking.dto.CountStatsResponse;
 import com.numble.tracking.dto.UrlCounterResponse;
 import com.numble.tracking.repository.UrlCounterRepository;
 import com.numble.tracking.service.UrlCounterService;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.engine.jdbc.spi.SqlExceptionHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
-import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class UrlCounterServiceImpl implements UrlCounterService {
 
     public static final int COUNT = 1;
@@ -31,7 +29,7 @@ public class UrlCounterServiceImpl implements UrlCounterService {
     private final UrlCounterRepository urlCounterRepository;
 
     @Override
-    @Transactional(isolation = Isolation.SERIALIZABLE)
+    @Transactional
     public UrlCounterResponse increaseCounter(String url) {
         UrlCounter counter = urlCounterRepository.findByUrlAndDate(url, TODAY)
             .orElse(new UrlCounter(url, TODAY));
@@ -39,11 +37,33 @@ public class UrlCounterServiceImpl implements UrlCounterService {
         LOGGER.info("[increaseCounter before] url : {}, count : {}", counter.getUrl(),
             counter.getCount());
 
-        counter.increase(COUNT);
+        /*
+        if(counter.getId() != null){
+            counter.increase(1);
+        }
 
-        UrlCounter result = urlCounterRepository.save(counter);
+        UrlCounter result = urlCounterRepository.saveAndFlush(counter);
 
-        LOGGER.info("[increaseCounter after] url : {}, count : {}", result.getUrl(),
+        LOGGER.info("[increaseCounter insert] url : {}, count : {}", result.getUrl(),
+            result.getCount());
+
+        return new UrlCounterResponse(result);
+        */
+
+        if(counter.getId() == null){
+            UrlCounter result = urlCounterRepository.saveAndFlush(counter);
+
+            LOGGER.info("[increaseCounter insert] url : {}, count : {}", result.getUrl(),
+                result.getCount());
+
+            return new UrlCounterResponse(result);
+        }
+
+        urlCounterRepository.increaseUrlCount(counter.getId());
+
+        UrlCounter result = urlCounterRepository.findById(counter.getId()).get();
+
+        LOGGER.info("[increaseCounter update] url : {}, count : {}", result.getUrl(),
             result.getCount());
 
         return new UrlCounterResponse(result);
